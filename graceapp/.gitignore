@@ -1,0 +1,6 @@
+# Ignore all model files
+*.pth
+
+# Or ignore specific files
+graceapp/best_model.pth
+graceapp/deit_skin_tone_classifier.pth
