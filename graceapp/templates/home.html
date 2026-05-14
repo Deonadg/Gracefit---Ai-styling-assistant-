@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraceFit | AI-Powered Fashion Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B5FBF;
+            --secondary: #FF6B8B;
+            --accent: #00C9B7;
+            --light: #F8F9FA;
+            --dark: #2D3748;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .card-glow {
+            box-shadow: 0 10px 30px rgba(139, 95, 191, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-glow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(139, 95, 191, 0.3);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--secondary);
+            background: rgba(139, 95, 191, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--accent);
+            background: rgba(0, 201, 183, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 95, 191, 0.3);
+        }
+        
+        .result-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin: 5px;
+        }
+        
+        .skin-tone-badge {
+            background: linear-gradient(135deg, #FFD6E7 0%, #FFB1C1 100%);
+            color: #C53030;
+        }
+        
+        .body-shape-badge {
+            background: linear-gradient(135deg, #C3FCF1 0%, #A0F1E6 100%);
+            color: #065F46;
+        }
+        
+        .face-shape-badge {
+            background: linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%);
+            color: #3730A3;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .color-chip {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-crown text-3xl text-yellow-300"></i>
+                    <h1 class="text-3xl font-bold font-['Playfair_Display']">GraceFit</h1>
+                </div>
+                <div class="text-right">
+                    <p class="text-lg opacity-90">AI-Powered Personal Stylist</p>
+                    <p class="text-sm opacity-75">Look your best, feel your best</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 font-['Playfair_Display']">Discover Your Perfect Style</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Upload your photos and let our AI analyze your skin tone, face shape, and body shape to provide personalized fashion recommendations.
+            </p>
+        </div>
+
+        <!-- Gender Selection -->
+        <div class="mb-8">
+            <div class="bg-white rounded-2xl p-8 card-glow" id="genderCard">
+                <div class="flex items-center mb-6">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-venus-mars text-2xl text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">Select Your Gender</h3>
+                        <p class="text-gray-600">This helps us provide personalized recommendations</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button id="maleBtn" class="gender-btn p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 transition-all text-center" data-gender="male">
+                        <i class="fas fa-male text-4xl text-blue-500 mb-3"></i>
+                        <p class="text-xl font-semibold">Male</p>
+                    </button>
+                    <button id="femaleBtn" class="gender-btn p-6 rounded-xl border-2 border-gray-200 hover:border-pink-500 transition-all text-center" data-gender="female">
+                        <i class="fas fa-female text-4xl text-pink-500 mb-3"></i>
+                        <p class="text-xl font-semibold">Female</p>
+                    </button>
+                </div>
+                
+                <div id="genderError" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg text-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>Please select your gender to continue
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 opacity-50 pointer-events-none" id="uploadSection">
+            <!-- Face Upload -->
+            <div class="bg-white rounded-2xl p-8 card-glow">
+                <div class="flex items-center mb-6">
+                    <div class="bg-purple-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-smile text-2xl text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">Step 1: Face Photo</h3>
+                        <p class="text-gray-600">For skin tone & face shape analysis</p>
+                    </div>
+                </div>
+                
+                <div class="upload-area p-8 text-center cursor-pointer mb-4" id="faceUploadArea">
+                    <i class="fas fa-cloud-upload-alt text-5xl text-purple-400 mb-4"></i>
+                    <p class="text-lg font-semibold mb-2">Upload Face Photo</p>
+                    <p class="text-gray-500 mb-4">Click or drag & drop your clear face photo</p>
+                    <input type="file" id="faceInput" accept="image/*" class="hidden">
+                    <label for="faceInput" class="btn-primary inline-block cursor-pointer">
+                        <i class="fas fa-camera mr-2"></i>Choose File
+                    </label>
+                </div>
+                
+                <div class="mt-6" id="faceResult">
+                    <!-- Face analysis results will appear here -->
+                </div>
+            </div>
+
+            <!-- Body Upload -->
+            <div class="bg-white rounded-2xl p-8 card-glow">
+                <div class="flex items-center mb-6">
+                    <div class="bg-pink-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-user text-2xl text-pink-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">Step 2: Body Photo</h3>
+                        <p class="text-gray-600">For body shape analysis</p>
+                    </div>
+                </div>
+                
+                <div class="upload-area p-8 text-center cursor-pointer mb-4" id="bodyUploadArea">
+                    <i class="fas fa-cloud-upload-alt text-5xl text-pink-400 mb-4"></i>
+                    <p class="text-lg font-semibold mb-2">Upload Body Photo</p>
+                    <p class="text-gray-500 mb-4">Click or drag & drop full body photo</p>
+                    <input type="file" id="bodyInput" accept="image/*" class="hidden">
+                    <label for="bodyInput" class="btn-primary inline-block cursor-pointer">
+                        <i class="fas fa-user mr-2"></i>Choose File
+                    </label>
+                </div>
+                
+                <div class="mt-6" id="bodyResult">
+                    <!-- Body analysis results will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Button -->
+        <div class="text-center mb-12">
+            <button id="analyzeBtn" class="btn-primary text-xl px-12 py-4">
+                <i class="fas fa-magic mr-3"></i>Get Personalized Recommendations
+            </button>
+            <div class="mt-4 flex justify-center">
+                <div class="loading-spinner" id="mainSpinner"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <!-- Detection Results -->
+            <div class="bg-white rounded-2xl p-8 mb-8 card-glow fade-in">
+                <h3 class="text-2xl font-bold mb-6 text-center">Your Analysis Results</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center p-6 bg-purple-50 rounded-xl">
+                        <div class="flex items-center justify-center mb-4">
+                            <i class="fas fa-palette text-3xl text-purple-600 mr-3"></i>
+                            <h4 class="text-xl font-bold">Skin Tone</h4>
+                        </div>
+                        <div id="skinToneResult" class="text-3xl font-bold mb-2"></div>
+                        <div id="skinConfidence" class="text-gray-600"></div>
+                        <div class="mt-4">
+                            <span class="result-badge skin-tone-badge" id="skinToneBadge"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-teal-50 rounded-xl">
+                        <div class="flex items-center justify-center mb-4">
+                            <i class="fas fa-user text-3xl text-teal-600 mr-3"></i>
+                            <h4 class="text-xl font-bold">Body Shape</h4>
+                        </div>
+                        <div id="bodyShapeResult" class="text-3xl font-bold mb-2"></div>
+                        <div id="bodyConfidence" class="text-gray-600"></div>
+                        <div class="mt-4">
+                            <span class="result-badge body-shape-badge" id="bodyShapeBadge"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-indigo-50 rounded-xl">
+                        <div class="flex items-center justify-center mb-4">
+                            <i class="fas fa-face-smile text-3xl text-indigo-600 mr-3"></i>
+                            <h4 class="text-xl font-bold">Face Shape</h4>
+                        </div>
+                        <div id="faceShapeResult" class="text-3xl font-bold mb-2"></div>
+                        <div id="faceConfidence" class="text-gray-600"></div>
+                        <div class="mt-4">
+                            <span class="result-badge face-shape-badge" id="faceShapeBadge"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="bg-white rounded-2xl p-8 card-glow fade-in">
+                <div class="flex items-center justify-center mb-8">
+                    <i class="fas fa-star text-3xl text-yellow-500 mr-4"></i>
+                    <h3 class="text-3xl font-bold text-center font-['Playfair_Display']">Your Personalized Style Guide</h3>
+                </div>
+                
+                <div id="recommendationsContent">
+                    <!-- Recommendations will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="mt-16 text-center">
+            <h3 class="text-3xl font-bold mb-10 font-['Playfair_Display']">Why Choose GraceFit?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="bg-white p-6 rounded-xl card-glow">
+                    <div class="text-4xl text-purple-600 mb-4">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Triple AI Analysis</h4>
+                    <p class="text-gray-600">Advanced AI analyzes skin tone, face shape, and body shape for complete style insights.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl card-glow">
+                    <div class="text-4xl text-pink-600 mb-4">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Personalized Suggestions</h4>
+                    <p class="text-gray-600">Tailored recommendations based on 140 unique combinations of your features.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl card-glow">
+                    <div class="text-4xl text-teal-600 mb-4">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Face Shape Fashion</h4>
+                    <p class="text-gray-600">Get neckline and accessory recommendations specifically for your face shape.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl card-glow">
+                    <div class="text-4xl text-indigo-600 mb-4">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Complete Style Package</h4>
+                    <p class="text-gray-600">From colors to cuts to accessories - everything you need for perfect style.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center space-x-6 mb-6">
+                <a href="#" class="text-white hover:text-yellow-300 text-xl"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white hover:text-yellow-300 text-xl"><i class="fab fa-pinterest"></i></a>
+                <a href="#" class="text-white hover:text-yellow-300 text-xl"><i class="fab fa-twitter"></i></a>
+            </div>
+            <p class="text-lg font-['Playfair_Display'] mb-2">GraceFit AI Stylist</p>
+            <p class="opacity-90">© 2024 All rights reserved. Merging AI with fashion intelligence.</p>
+        </div>
+    </footer>
+
+    <!-- Session ID (hidden) -->
+    <input type="hidden" id="sessionId" value="{{ session_id }}">
+
+    <!-- JavaScript -->
+    <script>
+        let sessionId = document.getElementById('sessionId').value;
+        let faceUploaded = false;
+        let bodyUploaded = false;
+        let skinTone = null;
+        let bodyShape = null;
+        let faceShape = null;
+        let selectedGender = null;
+
+        // Initialize CSRF token for AJAX
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        // Gender Selection Logic
+        const maleBtn = document.getElementById('maleBtn');
+        const femaleBtn = document.getElementById('femaleBtn');
+        const uploadSection = document.getElementById('uploadSection');
+
+        function selectGender(gender) {
+            selectedGender = gender;
+
+            // Update button styles
+            if (gender === 'male') {
+                maleBtn.classList.add('border-blue-500', 'bg-blue-50');
+                maleBtn.classList.remove('border-gray-200');
+                femaleBtn.classList.remove('border-pink-500', 'bg-pink-50');
+                femaleBtn.classList.add('border-gray-200');
+            } else {
+                femaleBtn.classList.add('border-pink-500', 'bg-pink-50');
+                femaleBtn.classList.remove('border-gray-200');
+                maleBtn.classList.remove('border-blue-500', 'bg-blue-50');
+                maleBtn.classList.add('border-gray-200');
+            }
+
+            // Enable upload section
+            uploadSection.classList.remove('opacity-50', 'pointer-events-none');
+            uploadSection.classList.add('fade-in');
+
+            // Hide error message
+            document.getElementById('genderError').classList.add('hidden');
+
+            // Hide results section when gender changes
+            document.getElementById('resultsSection').classList.add('hidden');
+
+            // Clear face and body detection results
+            document.getElementById('faceResult').innerHTML = '';
+            document.getElementById('bodyResult').innerHTML = '';
+            faceUploaded = false;
+            bodyUploaded = false;
+            skinTone = null;
+            bodyShape = null;
+            faceShape = null;
+
+            // Store gender in session via AJAX
+            fetch('/set-gender/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    gender: gender
+                })
+            });
+        }
+
+        maleBtn.addEventListener('click', () => selectGender('male'));
+        femaleBtn.addEventListener('click', () => selectGender('female'));
+
+        // Drag and drop functionality
+        function setupDragDrop(uploadAreaId, inputId) {
+            const uploadArea = document.getElementById(uploadAreaId);
+            const fileInput = document.getElementById(inputId);
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileUpload(inputId);
+                }
+            });
+
+            fileInput.addEventListener('change', () => handleFileUpload(inputId));
+        }
+
+        // Handle file upload
+        function handleFileUpload(inputId) {
+            const fileInput = document.getElementById(inputId);
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append(inputId === 'faceInput' ? 'face_image' : 'body_image', file);
+            formData.append('session_id', sessionId);
+            
+            const url = inputId === 'faceInput' ? '/upload-face/' : '/upload-body/';
+            const resultDivId = inputId === 'faceInput' ? 'faceResult' : 'bodyResult';
+            
+            // Show loading
+            document.getElementById(resultDivId).innerHTML = `
+                <div class="text-center p-4">
+                    <div class="loading-spinner mx-auto mb-2"></div>
+                    <p>Analyzing...</p>
+                </div>
+            `;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (inputId === 'faceInput') {
+                        faceUploaded = true;
+                        skinTone = data.skin_tone;
+                        faceShape = data.face_shape;
+                        showFaceResult(data);
+                    } else {
+                        bodyUploaded = true;
+                        bodyShape = data.body_shape;
+                        showBodyResult(data);
+                    }
+                } else {
+                    showUploadError(resultDivId, data.error || 'Upload failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showUploadError(resultDivId, 'Upload failed. Please try again.');
+            });
+        }
+
+        // Show face analysis result
+        function showFaceResult(data) {
+            const resultDiv = document.getElementById('faceResult');
+            resultDiv.innerHTML = `
+                <div class="bg-green-50 p-4 rounded-xl">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-2xl text-green-600 mr-3"></i>
+                        <div>
+                            <p class="font-bold text-lg">Double Analysis Complete!</p>
+                            <p class="text-gray-700">Skin Tone: ${data.skin_tone} (${(data.skin_confidence * 100).toFixed(1)}% confidence)</p>
+                            <p class="text-gray-700">Face Shape: ${data.face_shape} (${(data.face_confidence * 100).toFixed(1)}% confidence)</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show body analysis result
+        function showBodyResult(data) {
+            const resultDiv = document.getElementById('bodyResult');
+            resultDiv.innerHTML = `
+                <div class="bg-green-50 p-4 rounded-xl">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-2xl text-green-600 mr-3"></i>
+                        <div>
+                            <p class="font-bold text-lg">Body Shape Detected!</p>
+                            <p class="text-gray-700">${data.body_shape.replace('_', ' ').toUpperCase()} (${(data.confidence * 100).toFixed(1)}% confidence)</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show upload error
+        function showUploadError(divId, message) {
+            document.getElementById(divId).innerHTML = `
+                <div class="bg-red-50 p-4 rounded-xl">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-2xl text-red-600 mr-3"></i>
+                        <p class="text-red-700">${message}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Analyze button click
+        document.getElementById('analyzeBtn').addEventListener('click', function() {
+            if (!faceUploaded || !bodyUploaded) {
+                alert('Please upload both face and body photos first.');
+                return;
+            }
+            
+            const spinner = document.getElementById('mainSpinner');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            
+            spinner.style.display = 'block';
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Analyzing...';
+            
+            fetch(`/get-recommendations/?session_id=${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    spinner.style.display = 'none';
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.innerHTML = '<i class="fas fa-magic mr-3"></i>Get Personalized Recommendations';
+                    
+                    if (data.success) {
+                        showResults(data);
+                    } else {
+                        alert(data.error || 'Analysis failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    spinner.style.display = 'none';
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.innerHTML = '<i class="fas fa-magic mr-3"></i>Get Personalized Recommendations';
+                    alert('An error occurred. Please try again.');
+                });
+        });
+
+        // Show final results
+        function showResults(data) {
+            // Update detection results
+            document.getElementById('skinToneResult').textContent = data.skin_tone;
+            document.getElementById('skinConfidence').textContent = `Confidence: High`;
+            document.getElementById('skinToneBadge').textContent = data.skin_tone;
+            
+            const bodyShapeFormatted = data.body_shape.replace('_', ' ').toUpperCase();
+            document.getElementById('bodyShapeResult').textContent = bodyShapeFormatted;
+            document.getElementById('bodyConfidence').textContent = `Confidence: High`;
+            document.getElementById('bodyShapeBadge').textContent = bodyShapeFormatted;
+            
+            document.getElementById('faceShapeResult').textContent = data.face_shape;
+            document.getElementById('faceConfidence').textContent = `Confidence: High`;
+            document.getElementById('faceShapeBadge').textContent = data.face_shape;
+            
+            // Show recommendations
+            const rec = data.recommendations;
+            let recommendationsHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Color Recommendations -->
+                    <div class="bg-purple-50 p-6 rounded-xl">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-palette text-2xl text-purple-600 mr-3"></i>
+                            <h4 class="text-xl font-bold">Color Palette</h4>
+                        </div>
+                        <p class="font-semibold mb-2 text-purple-800">Best Colors for You:</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+            `;
+            
+            // Color chips
+            rec.color_palette.forEach(color => {
+                recommendationsHTML += `<span class="px-3 py-1 bg-purple-200 text-purple-800 rounded-full mb-2">${color}</span>`;
+            });
+            
+            recommendationsHTML += `
+                        </div>
+                        <p class="font-semibold mb-2 text-red-600">Avoid:</p>
+                        <p class="mb-4">${rec.avoid_colors.join(', ')}</p>
+                        <p class="font-semibold mb-2 text-purple-800">Recommended Fabrics:</p>
+                        <p>${rec.recommended_fabrics.join(', ')}</p>
+                    </div>
+                    
+                    <!-- Fit Recommendations -->
+                    <div class="bg-teal-50 p-6 rounded-xl">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-tshirt text-2xl text-teal-600 mr-3"></i>
+                            <h4 class="text-xl font-bold">Fit & Silhouette</h4>
+                        </div>
+                        <p class="font-semibold mb-2 text-teal-800">Recommended Fits:</p>
+                        <ul class="list-disc pl-5 mb-4 space-y-1">
+            `;
+            
+            rec.fit_recommendations.forEach(fit => {
+                recommendationsHTML += `<li>${fit}</li>`;
+            });
+            
+            recommendationsHTML += `
+                        </ul>
+                        <p class="font-semibold mb-2 text-red-600">Avoid:</p>
+                        <p class="mb-4">${rec.avoid_fits.join(', ')}</p>
+                        <p class="font-semibold mb-2 text-teal-800">Accessory Suggestions:</p>
+                        <p>${rec.accessory_suggestions.join(', ')}</p>
+                    </div>
+                    
+                    <!-- Face Shape Recommendations -->
+                    <div class="bg-indigo-50 p-6 rounded-xl">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-face-smile text-2xl text-indigo-600 mr-3"></i>
+                            <h4 class="text-xl font-bold">Face Shape Guide</h4>
+                        </div>
+                        <p class="font-semibold mb-2 text-indigo-800">Best Necklines:</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+            `;
+            
+            rec.neckline_recommendations.forEach(neckline => {
+                recommendationsHTML += `<span class="px-3 py-1 bg-indigo-200 text-indigo-800 rounded-full mb-2">${neckline}</span>`;
+            });
+            
+            recommendationsHTML += `
+                        </div>
+                        <p class="font-semibold mb-2 text-red-600">Avoid Necklines:</p>
+                        <p class="mb-4">${rec.avoid_necklines.join(', ')}</p>
+                        <p class="font-semibold mb-2 text-indigo-800">Hair & Glasses Tips:</p>
+                        <p class="text-sm">${rec.hair_glasses_tips.hair_accessories.join(', ')}</p>
+                        <p class="text-sm mt-1">Glasses: ${rec.hair_glasses_tips.glasses.join(', ')}</p>
+                    </div>
+                </div>
+                
+                <!-- Outfit Examples -->
+                <div class="mt-8 bg-yellow-50 p-6 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-star text-2xl text-yellow-600 mr-3"></i>
+                        <h4 class="text-xl font-bold">Recommended Outfits</h4>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            `;
+            
+            rec.outfit_examples.forEach(outfit => {
+                recommendationsHTML += `
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <p class="font-medium">${outfit}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            recommendationsHTML += `
+                    </div>
+                </div>
+                
+                <!-- Style Inspiration Images -->
+                <div class="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-images text-2xl text-purple-600 mr-3"></i>
+                        <h4 class="text-xl font-bold">Style Inspiration</h4>
+                    </div>
+                    <div class="flex justify-center">
+
+            `;
+
+            // Display single styled image from dynamic folder
+            const styleFolder = rec.style_image_folder || '';
+            const styleGender = rec.style_image_gender || 'female';
+
+            if (styleFolder) {
+                recommendationsHTML += `
+                    <div class="bg-white rounded-xl overflow-hidden shadow-lg max-w-md w-full">
+                        <div class="relative">
+                            <img src="/get-style-image/?folder=${encodeURIComponent(styleFolder)}&gender=${encodeURIComponent(styleGender)}&t=${Date.now()}"
+                                 alt="Style Inspiration"
+                                 class="w-full h-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                                 onclick="openImageModal(this.src)"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="hidden absolute inset-0 bg-gray-100 flex-col items-center justify-center p-6 text-center">
+                                <i class="fas fa-image text-4xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600">Add images to folder:</p>
+                                <p class="text-sm text-gray-500 font-mono mt-1">style_images/${styleFolder}/${styleGender}/</p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50">
+                            <h5 class="font-bold text-lg text-gray-800 text-center">Your Personalized Style</h5>
+                            <p class="text-sm text-gray-600 text-center mt-1">${data.skin_tone} skin • ${data.face_shape} face • ${data.body_shape.replace('_', ' ')} body</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                recommendationsHTML += `
+                    <div class="bg-white rounded-xl overflow-hidden shadow-lg max-w-md w-full p-6 text-center">
+                        <i class="fas fa-image text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600">Style images folder not configured</p>
+                    </div>
+                `;
+            }
+
+            recommendationsHTML += `
+                    </div>
+                </div>
+
+                <!-- Additional Tips -->
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-pink-50 p-5 rounded-xl">
+                        <h5 class="font-bold text-lg mb-3 flex items-center">
+                            <i class="fas fa-paint-brush text-pink-600 mr-2"></i> Pattern Guide
+                        </h5>
+                        <p>${rec.recommended_patterns.join(', ')}</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-5 rounded-xl">
+                        <h5 class="font-bold text-lg mb-3 flex items-center">
+                            <i class="fas fa-lightbulb text-blue-600 mr-2"></i> Styling Tips
+                        </h5>
+                        <p>${rec.silhouette_guide.join('. ')}</p>
+                    </div>
+                </div>
+                
+                <!-- Final Summary -->
+                <div class="mt-8 text-center p-6 gradient-bg text-white rounded-xl">
+                    <h4 class="text-2xl font-bold mb-3 font-['Playfair_Display']">Your Perfect Style Awaits!</h4>
+                    <p class="text-lg">Embrace your unique ${data.skin_tone.toLowerCase()} skin tone, ${data.face_shape.toLowerCase()} face shape, and ${data.body_shape.replace('_', ' ')} body shape with confidence.</p>
+                    <p class="mt-2 opacity-90">Remember: Fashion is about feeling great in what you wear!</p>
+                </div>
+            `;
+
+            document.getElementById('recommendationsContent').innerHTML = recommendationsHTML;
+            
+            // Show results section
+            document.getElementById('resultsSection').classList.remove('hidden');
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize drag and drop
+        setupDragDrop('faceUploadArea', 'faceInput');
+        setupDragDrop('bodyUploadArea', 'bodyInput');
+
+        // Start new session
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clear any previous session
+            fetch('/clear-session/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})
+            });
+        });
+
+        // Image Modal Functions
+        function openImageModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.classList.remove('hidden');
+            modalImg.src = src;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal on clicking outside the image
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('imageModal');
+            if (e.target === modal) {
+                closeImageModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+    </script>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="hidden fixed inset-0 z-50 bg-black flex items-center justify-center">
+        <div class="relative w-full h-full flex items-center justify-center p-4">
+            <button onclick="closeImageModal()" class="absolute top-6 right-6 z-50 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-3">
+                <i class="fas fa-times text-3xl"></i>
+            </button>
+            <img id="modalImage" src="" alt="Full size style inspiration" class="max-w-full max-h-full w-auto h-auto object-contain">
+        </div>
+    </div>
+</body>
+</html>
